@@ -13,9 +13,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 //compte
 Route::controller(CompteController::class)->group(function(){
-    Route::get('associerCompte','associerCompte'); 
-    Route::get('modifierCompte','modifierCompte'); 
-    Route::get('consulterCompte','consulterCompte'); 
+    Route::post('associerCompte/{userId}','associerCompte'); 
+    Route::get('listerCompte/{idUser}','listerCompte'); 
+    Route::get('consulterCompte/{id}','consulterCompte'); 
+    Route::delete('supprimerCompte/{id}','supprimerCompte'); 
 });
 //notification
 Route::controller(NotificationController::class)->group(function(){

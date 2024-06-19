@@ -4,22 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\Compte;
 use Illuminate\Http\Request;
+use Hash;
+use DB;
 
 class CompteController extends Controller
 {
    
-    public function associerCompte(Request $request)
+    public function associerCompte(Request $req, $userId)
     {
-        return "associerCompte";
+        $compte= new Compte;
+        $compte->typeCompte=$req->typeCompte;
+        $compte->numeroCompte=$req->numeroCompte;
+        $compte->somme=$req->somme;
+        $compte->motDePasseCompte=Hash::make($req->motDePasseCompte);
+        $compte->user_id=$userId;        
+        $compte->save();
+        return $compte;
     }
 
-    public function modifierCompte(Request $request)
-    {
-        return "modifierCompte";
+    public function listerCompte($id)
+    { 
+        $comptes=DB::select("select * from comptes where user_id='$id' ");
+        return $comptes;
     }
 
-    public function consulterCompte(Compte $compte)
+    public function consulterCompte($id)
     {
-        return "consulterCompte";
+        $compte = Compte::find($id);
+        return $compte;
     }
+
+    public function supprimerCompte($id)
+    {
+        $compte = Compte::find($id);    
+        $compte->delete();
+    
+        return "Compte supprimé avec succès";
+    }
+
 }
