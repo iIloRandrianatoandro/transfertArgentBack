@@ -10,5 +10,5 @@ class Compte extends Model
     use HasFactory;
     protected $primaryKey = 'id';
     protected $guarded=[];
-    protected $fillable = ['typeCompte','numeroCompte','motDePasseCompte','somme','user_id'];
+    protected $fillable = ['typeCompte','numeroCompte','motDePasseCompte','somme','user_id','nomCompte','nomCompte'];
 }

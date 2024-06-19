@@ -14,8 +14,10 @@ class CompteController extends Controller
     {
         $compte= new Compte;
         $compte->typeCompte=$req->typeCompte;
+        $compte->nomCompte=$req->nomCompte;
         $compte->numeroCompte=$req->numeroCompte;
         $compte->somme=$req->somme;
+        $compte->destinataire=$req->destinataire;
         $compte->motDePasseCompte=Hash::make($req->motDePasseCompte);
         $compte->user_id=$userId;        
         $compte->save();

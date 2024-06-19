@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'idTransaction';
+    protected $primaryKey = 'id';
     protected $guarded=[];
     protected $fillable = ['compteExpaditeur','compteDestinataire','typeTransaction','typeCompteDestinataire','instutitionFinanciereDestinataire','sommeTransaction','dateEnvoi','dateReception','fraisTransfert','tauxDeChange','delais','etatTransation'];
 }

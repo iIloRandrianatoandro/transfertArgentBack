@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('typeCompte');
             $table->string('numeroCompte');
             $table->string('motDePasseCompte');
+            $table->string('nomCompte');
+            $table->boolean('destinataire');
             $table->decimal('somme');
             $table->foreignIdFor(user::class)->default(1);
             $table->timestamps();
