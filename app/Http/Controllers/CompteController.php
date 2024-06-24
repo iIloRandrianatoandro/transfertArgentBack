@@ -23,10 +23,14 @@ class CompteController extends Controller
         $compte->save();
         return $compte;
     }
-
-    public function listerCompte($id)
+    public function listerCompteExpediteur($id)
     { 
-        $comptes=DB::select("select * from comptes where user_id='$id' ");
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire='false'");
+        return $comptes;
+    }
+    public function listerCompteDestinataire($id)
+    { 
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire='true' ");
         return $comptes;
     }
 

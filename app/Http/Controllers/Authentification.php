@@ -8,28 +8,70 @@ use App\Models\User;
 use Hash;
 use Session;
 use Carbon\Carbon;
+use Socialite;
+use Str;
+use DB;
 
 class Authentification extends Controller
 {
-    public function sInscrire(Request $req){//nouvel utilisateur
+    public function redirectToGoogle() //redirection vers la page de connection de google
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+    public function handleGoogleCallback() //recuperer le compte google et se connecter via le compte googlle
+    {
+        try {
+            $user = Socialite::driver('google')->stateless()->user(); //recuperer le compte google
+            $findUser = User::where('google_id', $user->id)->first();
+            if ($findUser) { //si oui se connecter
+                Auth::login($findUser);
+                // $token = $findUser->createToken('Personal Access Token')->accessToken;
+                // return response()->json(['token' => $token], 200);
+                return ['message'=>'connecte','user'=>$findUser];
+            } else { //sinon creer le compte puis se connecter
+                $newUser= new User;
+                $newUser->email=$user->email;
+                $newUser->google_id=$user->id;
+                $newUser->password=encrypt(Str::random(16));
+                $newUser->save();
+                Auth::login($newUser);
+                // $token = $newUser->createToken('Personal Access Token')->accessToken;
+                // return response()->json(['token' => $token], 200);
+                return ['message'=>'connecte, utilisateur créé','user'=>$newUser];
+            }
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+    }
+    public function sInscrire(Request $req){ //nouvel utilisateur
         $User= new User;
-        $User->nom=$req->nom;
         $User->email=$req->email;
-        $User->prenom=$req->prenom;
-        $User->adresse=$req->adresse;
-        $User->telephone=$req->telephone;
-        $User->dateNais=$req->dateNais;
-        //$User->dateNais = Carbon::parse($req->dateNais)->format('Y-m-d'); 
         $User->password=Hash::make($req->password);
         $User->save();
         return response(['message' => 'Inscription effectuée avec succès', 'user' => $User]);
+    }
+    public function ajouterInformation(Request $req, $id)
+    {
+        $user = User::find($id);
+            
+        // Mettez à jour les champs de l'utilisateur
+        $user->update([
+            'nom' => $req->nom,
+            'prenom'=> $req->prenom,
+            'adresse'=> $req->adresse,
+            'telephone' => $req->telephone,
+            'dateNais'=> $req->dateNais,
+        ])
+        ;
+        return $user;
     }
     public function seConnecter(Request $req){ //login
        if(Auth()->attempt($req->only('email', 'password'))){
         return Auth::user()->id;
        }
        else{
-        return 'erreur autnetification';
+        return 'erreur authentification';
        } 
     }
     public function seDeconnecter(){ //logout

@@ -14,7 +14,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //compte
 Route::controller(CompteController::class)->group(function(){
     Route::post('associerCompte/{userId}','associerCompte'); 
-    Route::get('listerCompte/{idUser}','listerCompte'); 
+    Route::get('listerCompteExpediteur/{idUser}','listerCompteExpediteur'); 
+    Route::get('listerCompteDestinataire/{idUser}','listerCompteDestinataire'); 
     Route::get('consulterCompte/{id}','consulterCompte'); 
     Route::delete('supprimerCompte/{id}','supprimerCompte'); 
 });
@@ -36,6 +37,10 @@ Route::controller(authentification::class)->group(function(){
     Route::get('seDeconnecter','seDeconnecter');
     Route::post('sInscrire','sInscrire');
     Route::post('modifierProfil/{id}','modifierProfil');
+    Route::post('ajouterInformation/{id}','ajouterInformation');
     Route::post('supprimerProfil/{id}','supprimerProfil');
     Route::get('consulterProfil/{id}','consulterProfil');
+    //google authentification
+    Route::get('googleAuthentification','redirectToGoogle');
+    Route::get('googleCallback','handleGoogleCallback');
 });

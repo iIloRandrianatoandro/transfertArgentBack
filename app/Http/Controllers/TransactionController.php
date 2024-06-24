@@ -14,7 +14,7 @@ class TransactionController extends Controller
     }
     public function listerTransaction(Request $request)
     {
-        return "consulterTransaction";
+        return "listerTransaction";
     }
     public function consulterTransaction(Request $request, $id)
     {
