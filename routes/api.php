@@ -43,4 +43,7 @@ Route::controller(authentification::class)->group(function(){
     //google authentification
     Route::get('googleAuthentification','redirectToGoogle');
     Route::get('googleCallback','handleGoogleCallback');
+    //verfier numero de telephone 
+    Route::post('envoyerCodeSmsVerificationTelephone','envoyerCodeSmsVerificationTelephone');
+    Route::post('verifierCode/{code}','verifierCode');
 });

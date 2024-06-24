@@ -74,6 +74,40 @@ class Authentification extends Controller
         return 'erreur authentification';
        } 
     }
+    public function verifierCode(Request $req,$code){
+        if($req->codeEntre != $code){
+            return 'code incorrect';
+        }
+        else {
+            return 'code correct';
+        }
+    }
+    public function envoyerCodeSmsVerificationTelephone(Request $req){
+        $message=Str::random(4);
+        $numero=$req->numero;
+        
+        $basic  = new \Vonage\Client\Credentials\Basic("b9e281c4", "0vNbn9MnOIBIx79x");
+        $client = new \Vonage\Client($basic);
+
+        // Set the CA bundle path for Guzzle with a relative path
+        $guzzleClient = new \GuzzleHttp\Client([
+        'verify' => storage_path('cacert.pem'),
+        ]);
+        $client->setHttpClient($guzzleClient); //for more seurity
+
+        //envoi message
+        $response = $client->sms()->send(
+            new \Vonage\SMS\Message\SMS($numero, "Transfert d'argent Ilo", "Application de transfert d argent Ilo '\n' Voici votre code de vérification '$message'")
+        );
+
+        $message = $response->current();
+
+        if ($message->getStatus() == 0) {
+           return ["message"=>"Message envoyé\n","code"=>$message];
+        } else {
+            return "Message non evoyé " . $message->getStatus() . "\n";
+        }
+    }
     public function seDeconnecter(){ //logout
         Auth::logout();
         return 'deconnecte';
