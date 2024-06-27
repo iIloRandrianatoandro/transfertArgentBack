@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use Socialite;
 use Str;
 use DB;
+use Mail;
+use App\Mail\verifyMail;
 
 class Authentification extends Controller
 {
@@ -65,6 +67,10 @@ class Authentification extends Controller
         ])
         ;
         return $user;
+    }
+    public function verifierMail(Request $req){ 
+       $destinataire = $req->destinataire;
+       Mail::to($destinataire)->send(new verifyMail());
     }
     public function seConnecter(Request $req){ //login
        if(Auth()->attempt($req->only('email', 'password'))){

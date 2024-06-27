@@ -46,4 +46,7 @@ Route::controller(authentification::class)->group(function(){
     //verfier numero de telephone 
     Route::post('envoyerCodeSmsVerificationTelephone','envoyerCodeSmsVerificationTelephone');
     Route::post('verifierCode/{code}','verifierCode');
+    //verifier adresse mail
+    Route::post('verifierMail','verifierMail');
+
 });
