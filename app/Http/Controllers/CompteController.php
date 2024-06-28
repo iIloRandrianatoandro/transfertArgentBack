@@ -25,12 +25,12 @@ class CompteController extends Controller
     }
     public function listerCompteExpediteur($id)
     { 
-        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire='false'");
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=false");
         return $comptes;
     }
     public function listerCompteDestinataire($id)
     { 
-        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire='true' ");
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=true ");
         return $comptes;
     }
 
