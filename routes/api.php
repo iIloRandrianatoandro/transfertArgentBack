@@ -27,7 +27,6 @@ Route::controller(NotificationController::class)->group(function(){
 });
 //transaction
 Route::controller(TransactionController::class)->group(function(){
-    Route::post('test','test'); 
     Route::post('creerTransaction','creerTransaction'); 
     Route::get('listerTransaction/{idTransaction}','listerTransaction'); 
     Route::get('consulterTransaction/{idTransaction}','consulterTransaction'); 

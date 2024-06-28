@@ -4,29 +4,48 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
 
 class TransactionController extends Controller
 {
-    
-    // public function test(Request $req)
-    // {
-    //     // Set your Stripe API key.
-    // \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-    // $montant=$req->montant;
-    // // Create a new Stripe charge.
-    // $charge = \Stripe\Charge::create([
-    //     'amount' => $montant,
-    //     'currency' => 'mgm',
-    //     'customer' => 1,
-    // ]);
-
-    // // Display a success message to the user.
-    // return 'Payment successful!';
-
-    // }
-    public function creerTransaction(Request $request)
+    public function creerTransaction(Request $req)
     {
-        return "creerTransaction";
+        // $porteeTransaction=$req->porteeTransaction;
+        // $typeTransaction=$req->typeTransaction;
+        // $sommeTransaction=$req->sommeTransaction;
+        // $compteExpediteur=$req->compteExpediteur;
+        // $compteDestinataire=$req->compteDestinataire;
+        // $fraisTransfert;
+        // $tauxDeChange;
+        // $delais;
+        $apiKey = env('OPEN_EXCHANGE_RATES_API_KEY'); // Replace with your API key
+
+        try {
+            $client = new Client([
+                'base_uri' => 'https://openexchangerates.org/api/',
+            ]);
+
+            // Specify base currency (EUR) and desired symbols (MGA)
+            $response = $client->request('GET', 'latest.json', [
+                'query' => [
+                    'app_id' => $apiKey,
+                    'symbols' => 'MGA',
+                ]
+            ]);
+            $data = json_decode($response->getBody(), true);
+    return response()->json([
+        'success' => true,
+        'data' => $data,
+    ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ]);
+        }
+    
     }
     public function listerTransaction(Request $request)
     {
