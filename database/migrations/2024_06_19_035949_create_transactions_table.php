@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('typeTransaction');
             $table->decimal('sommeTransaction');
             $table->date('dateEnvoi');
-            $table->date('dateReception')->nullable();
+            $table->date('dateReception');
             $table->decimal('fraisTransfert');
             $table->decimal('tauxDeChange');
             $table->string('delais');
