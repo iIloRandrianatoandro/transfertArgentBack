@@ -7,11 +7,17 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use DB;
+use Stripe\Stripe;
+use Stripe\Account;
+use App\Jobs\ProcessTransaction;
+use App\Jobs\TestJob;
 
 class TransactionController extends Controller
 {
     public function creerTransaction(Request $req, $id)
-    { $samemobileMoney=true;
+    { 
+        $samemobileMoney=true;
+        $samebanq=true;
         //recevoir taux de change via api
         $apiKey = env('OPEN_EXCHANGE_RATES_API_KEY'); 
 
@@ -36,7 +42,11 @@ class TransactionController extends Controller
 
         $porteeTransaction=$req->porteeTransaction;
         $typeTransaction=$req->typeTransaction;
+        $sommeTransaction=$req->sommeTransaction;
+        $compteExpediteur=$req->compteExpediteur;
+        $compteDestinataire=$req->compteDestinataire;
        
+
         if($porteeTransaction == 'local') {
             $tauxDeChange=0;
             if($typeTransaction == 'bankToMobileMoney') {
@@ -47,12 +57,63 @@ class TransactionController extends Controller
             elseif($typeTransaction == 'bankToBank') {
                 if($samebanq) {
                     $fraisTransfert = 500; // frais réduits si même banque
-                    $delais = 30; // délai en minutes
+                    $delais = 6; // délai en minutes
                 } else {
                     $fraisTransfert = 1500; // frais pour différentes banques
                     $delais = 120;
                 }
-            }
+                // Handle bank-to-bank transaction using Stripe
+                
+                    // Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+                    // // Récupérer les détails du compte
+                    // $account = \Stripe\Account::retrieve();
+
+                    // try {
+                    //     // Créer un compte connecté de test
+                    //     $connectedAccount = Account::create([
+                    //         'type' => 'custom',
+                    //         'country' => 'US',
+                    //         'email' => 'iloorandrianatoandro@gmail.com',
+                    //         'business_type' => 'individual',
+                    //     ]);
+                    
+                    //     echo "Connected account ID: " . $connectedAccount->id;
+                    
+                    // } catch (\Stripe\Exception\ApiErrorException $e) {
+                    //     echo "Error: " . $e->getMessage();
+                    // }
+
+                    // try {
+                    //     // Créer un transfert vers le compte connecté
+                    //     $transfer = Transfer::create([
+                    //         'amount' => 1000, // Montant en cents (10.00 USD)
+                    //         'currency' => 'usd',
+                    //         'destination' => $connectedAccount->id, // Remplacez par l'ID de votre compte connecté
+                    //     ]);
+                    
+                    //     echo "Transfer ID: " . $transfer->id;
+                    
+                    // } catch (\Stripe\Exception\ApiErrorException $e) {
+                    //     echo "Error: " . $e->getMessage();
+                    // }
+                    // try {
+                    //     // Créer un payout en mode test
+                    //     $payout = Payout::create([
+                    //         'amount' => 500, // Montant en cents (5.00 USD)
+                    //         'currency' => 'usd',
+                    //         'destination' => 'ba_1Gq2PjFZHpbuWzcq43ufRNJX', // Remplacez par l'ID de votre compte bancaire de test
+                    //         'description' => 'Test Payout',
+                    //     ], [
+                    //         'stripe_account' => $connectedAccount->id // Remplacez par l'ID de votre compte connecté
+                    //     ]);
+                    
+                    //     echo "Payout ID: " . $payout->id;
+                    
+                    // } catch (\Stripe\Exception\ApiErrorException $e) {
+                    //     echo "Error: " . $e->getMessage();
+                    // }
+                }
+            
         
             elseif($typeTransaction == 'MobileMoneyToMobileMoney') {
                 if($samemobileMoney) {
@@ -78,46 +139,52 @@ class TransactionController extends Controller
             }
         }
        
-        // creer transaction
-        $transaction= new Transaction;
-        $transaction->tauxDeChange=$tauxDeChange;
-        $transaction->porteeTransaction=$porteeTransaction;
-        $transaction->typeTransaction=$typeTransaction;
-        $transaction->fraisTransfert=$fraisTransfert;
-        $transaction->delais=$delais;
-        $sommeTransaction=$req->sommeTransaction;
-        $transaction->sommeTransaction=$sommeTransaction;
-        $compteExpediteur=$req->compteExpediteur;
-        $compteDestinataire=$req->compteDestinataire;
-        $transaction->compteExpediteur=$compteExpediteur;
-        $transaction->compteDestinataire=$compteDestinataire;
-        $transaction->dateEnvoi=Carbon::now();
-        $transaction->user_id=$id;  
-        $transaction->dateReception = Carbon::now()->addMinutes($delais);   
-        $transaction->etatTransation="en cours";   
-        $transaction->save();
+       
+       
        
         //condition transaction somme compte+frais > somme transaction
-        //compte destinataire +somme
-        //DB::select("update comptes set somme=somme+'$sommeTransaction' where user_id='$id' and destinataire=false and numeroCompte='$compteDestinataire'");
-        DB::update("UPDATE comptes SET somme = somme + ? WHERE user_id = ? AND destinataire = ? AND numeroCompte = ?", [
-            $sommeTransaction,
-            $id,
-            true,
-            $compteDestinataire
-        ]);
+        $sommeCompte = DB::table('comptes')
+                ->where('user_id', $id)
+                ->where('destinataire', false)
+                ->where('numeroCompte', $compteExpediteur)
+                ->value('somme');
+        $paie=$sommeTransaction+$fraisTransfert;
+        if($sommeCompte>=$paie){
+            //creer transation
+             // Créer la transaction
+            $transaction = new Transaction;
+            $transaction->tauxDeChange = $tauxDeChange;
+            $transaction->porteeTransaction = $porteeTransaction;
+            $transaction->typeTransaction = $typeTransaction;
+            $transaction->fraisTransfert = $fraisTransfert;
+            $transaction->delais = $delais;
+            $transaction->compteExpediteur = $compteExpediteur;
+            $transaction->compteDestinataire = $compteDestinataire;
+            $transaction->sommeTransaction = $sommeTransaction;
+            $transaction->dateEnvoi = Carbon::now();
+            $transaction->user_id = $id;  
+            $transaction->dateReception = Carbon::now()->addMinutes($delais);   
+            $transaction->etatTransation = "en cours";   
+            $transaction->save();
+            //update somme expediteur & destinataire apres delais
+            ProcessTransaction::dispatch(
+                $tauxDeChange, 
+                $porteeTransaction, 
+                $typeTransaction, 
+                $fraisTransfert, 
+                $delais, 
+                $compteExpediteur, 
+                $compteDestinataire, 
+                $sommeTransaction, 
+                $id
+            )->delay(now()->addSeconds($delais));
+
+            return $transaction;
+        }
+       else{
+        return "somme manquante";
+       }
         
-        //compte expediteur -somme -frais
-        //DB::select("update comptes set somme=somme-'$sommeTransaction' where user_id='$id' and destinataire=true and numeroCompte='$compteExpediteur'");
-        DB::update("UPDATE comptes SET somme = somme - ? - ? WHERE user_id = ? AND destinataire = ? AND numeroCompte = ?", [
-            $sommeTransaction,
-            $fraisTransfert,
-            $id,
-            false,
-            $compteExpediteur
-        ]);
-        
-        return $transaction;
     }
     public function listerTransaction($id)
     {

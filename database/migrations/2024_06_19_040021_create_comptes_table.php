@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('destinataire');
             $table->decimal('somme');
             $table->foreignIdFor(user::class)->default(1);
+            $table->string('stripe_account_id')->nullable();
             $table->timestamps();
         });
     }

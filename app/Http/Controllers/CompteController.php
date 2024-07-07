@@ -6,20 +6,64 @@ use App\Models\Compte;
 use Illuminate\Http\Request;
 use Hash;
 use DB;
+use Stripe\Stripe;
+
 
 class CompteController extends Controller
 {
    
     public function associerCompte(Request $req, $userId)
     {
+        
         $compte= new Compte;
-        $compte->typeCompte=$req->typeCompte;
-        $compte->nomCompte=$req->nomCompte;
+        $compte->typeCompte=$req->typeCompte; //bancaire oe mobile money
+        $compte->nomCompte=$req->nomCompte; //nom banque ou mobile money
         $compte->numeroCompte=$req->numeroCompte;
         $compte->somme=$req->somme;
         $compte->destinataire=$req->destinataire;
         $compte->motDePasseCompte=Hash::make($req->motDePasseCompte);
-        $compte->user_id=$userId;        
+        $compte->user_id=$userId; 
+         
+        //associer le compte à un compte stripe si le typeCompte compte bancaire
+        // $typeCompte = $req->typeCompte;
+        // if ($typeCompte == 'compte bancaire') {
+        //     try {
+        //         // Set Stripe API key
+        //         Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+    
+        //         // Create a Stripe customer using the user's email
+        //         $customer = \Stripe\Customer::create([
+        //             //'email' => auth()->user()->email,
+        //             'email' => 'iloorandrianatoandro@gmail.com',
+        //         ]);
+    
+        //         // Create a Stripe bank account token using the provided bank account details
+        //         $token = \Stripe\Token::create([
+        //             'bank_account' => [
+        //                 'country' => 'US', // Replace with your country code
+        //                 'currency' => 'usd', // Bank account currency
+        //                 'account_holder_name' => 'i Ilo', // Replace with actual account holder name
+        //                 'account_holder_type' => 'individual', // Replace with 'individual' or 'company'
+        //                 'routing_number' => '110000000', // Test routing number
+        //                 'account_number' => '000123456789', // Test account number
+        //                 'usage' => 'source' // Indicate that this is a payment source
+        //             ],
+        //         ]);
+            
+        //         // Attach the bank account to the customer
+        //         \Stripe\Customer::createSource(
+        //             $customer->id,
+        //             ['source' => $token->id]
+        //         );
+            
+        //         // Store the Stripe customer ID in the `Compte` model
+        //         $compte->stripe_account_id = $customer->id;
+    
+        //     } catch (\Stripe\Exception $e) {
+        //         return response()->json(['error' => $e->getMessage()], 500);
+        //     }
+        // }
+        
         $compte->save();
         return $compte;
     }

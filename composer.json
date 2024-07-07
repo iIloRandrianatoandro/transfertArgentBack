@@ -7,10 +7,12 @@
     "require": {
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.8",
+        "laravel/cashier": "^14.14",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/socialite": "^5.15",
         "laravel/tinker": "^2.7",
+        "stripe/stripe-php": "^10.21",
         "vonage/client": "^4.0"
     },
     "require-dev": {
