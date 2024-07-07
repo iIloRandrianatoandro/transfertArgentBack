@@ -21,6 +21,7 @@ class TransactionController extends Controller
     { 
         $samemobileMoney=true;
         $samebanq=true;
+        $madaToUs=true;
         //recevoir taux de change via api
         $apiKey = env('OPEN_EXCHANGE_RATES_API_KEY'); 
 
@@ -54,7 +55,7 @@ class TransactionController extends Controller
             $tauxDeChange=0;
             if($typeTransaction == 'bankToMobileMoney') {
                 $fraisTransfert = 1000; // frais en monnaie locale
-                $delais = 60; // délai en secondes
+                $delais = 6; // délai en secondes
             }
         
             elseif($typeTransaction == 'bankToBank') {
@@ -63,7 +64,7 @@ class TransactionController extends Controller
                     $delais = 3; // délai en minutes
                 } else {
                     $fraisTransfert = 1500; // frais pour différentes banques
-                    $delais = 120;
+                    $delais = 5;
                 }
                 // Handle bank-to-bank transaction using Stripe
                 
@@ -121,17 +122,23 @@ class TransactionController extends Controller
             elseif($typeTransaction == 'MobileMoneyToMobileMoney') {
                 if($samemobileMoney) {
                     $fraisTransfert = 500; // frais réduits si même fournisseur mobile money
-                    $delais = 5; // délai en minutes
+                    $delais = 0; // délai en minutes
                 }
                 else{
                     $fraisTransfert = 800; // frais pour transfert entre mobile money
-                    $delais = 15; // délai en minutes
+                    $delais = 5; // délai en minutes
                 }
             }
         
         } elseif($porteeTransaction == 'international') {
             $tauxDeChange=$rates['MGA'];
             //mada to us ou us to mada miova sommeTransaction dia misy conversion kely
+            if($madaToUs){
+                $sommeTransaction = $sommeTransaction*$tauxDeChange;
+            }
+            else{
+                $sommeTransaction = $sommeTransaction/$tauxDeChange;
+            }
             if($typeTransaction == 'bankToMobileMoney') {
                 $fraisTransfert = 5000; // frais pour transfert international bank-to-mobile money
                 $delais = 24 * 60; // délai en minutes (24 heures)
