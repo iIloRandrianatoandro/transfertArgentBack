@@ -21,9 +21,10 @@ Route::controller(CompteController::class)->group(function(){
 });
 //notification
 Route::controller(NotificationController::class)->group(function(){
-    Route::get('creerNotification','creerNotification'); 
-    Route::get('consulterNotification','consulterNotification'); 
-    Route::get('supprimerNotification','supprimerNotification'); 
+    Route::get('markAsRead/{id}/{idNotification}','markAsRead'); 
+    Route::get('listeNotificationNonLues/{id}','listeNotificationNonLues'); 
+    Route::get('listeNotificationLues/{id}','listeNotificationLues'); 
+    Route::get('supprimerNotification/{idNotification}','supprimerNotification'); 
 });
 //transaction
 Route::controller(TransactionController::class)->group(function(){

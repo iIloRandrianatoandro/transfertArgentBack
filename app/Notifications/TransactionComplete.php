@@ -46,9 +46,9 @@ class TransactionComplete extends Notification
         return (new MailMessage)
                     ->subject('Argent transféré avec succès')
                     ->line('Votre argent a été transféré avec succès.')
-                    ->line('Montant de la transaction : ' . $this->transaction->sommeTransaction . ' €')
+                    ->line('Montant de la transaction : ' . $this->transaction->sommeTransaction )
                     ->line('Numéro de compte du destinataire : ' . $this->transaction->compteDestinataire)
-                    ->action('Voir la transaction', url('/transactions/' . $this->transaction->id))
+                    //->action('Voir la transaction', url('/transactions/' . $this->transaction->id))
                     ->line('Merci de votre confiance!');
     }
     public function toDatabase($notifiable)
