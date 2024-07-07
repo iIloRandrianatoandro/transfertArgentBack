@@ -11,6 +11,9 @@ use Stripe\Stripe;
 use Stripe\Account;
 use App\Jobs\ProcessTransaction;
 use App\Jobs\TestJob;
+use App\Models\User;
+use App\Notifications\TransactionCree;
+
 
 class TransactionController extends Controller
 {
@@ -51,13 +54,13 @@ class TransactionController extends Controller
             $tauxDeChange=0;
             if($typeTransaction == 'bankToMobileMoney') {
                 $fraisTransfert = 1000; // frais en monnaie locale
-                $delais = 60; // délai en minutes
+                $delais = 60; // délai en secondes
             }
         
             elseif($typeTransaction == 'bankToBank') {
                 if($samebanq) {
                     $fraisTransfert = 500; // frais réduits si même banque
-                    $delais = 6; // délai en minutes
+                    $delais = 3; // délai en minutes
                 } else {
                     $fraisTransfert = 1500; // frais pour différentes banques
                     $delais = 120;
@@ -128,6 +131,7 @@ class TransactionController extends Controller
         
         } elseif($porteeTransaction == 'international') {
             $tauxDeChange=$rates['MGA'];
+            //mada to us ou us to mada miova sommeTransaction dia misy conversion kely
             if($typeTransaction == 'bankToMobileMoney') {
                 $fraisTransfert = 5000; // frais pour transfert international bank-to-mobile money
                 $delais = 24 * 60; // délai en minutes (24 heures)
@@ -150,8 +154,7 @@ class TransactionController extends Controller
                 ->value('somme');
         $paie=$sommeTransaction+$fraisTransfert;
         if($sommeCompte>=$paie){
-            //creer transation
-             // Créer la transaction
+            // Créer la transaction
             $transaction = new Transaction;
             $transaction->tauxDeChange = $tauxDeChange;
             $transaction->porteeTransaction = $porteeTransaction;
@@ -166,8 +169,15 @@ class TransactionController extends Controller
             $transaction->dateReception = Carbon::now()->addMinutes($delais);   
             $transaction->etatTransation = "en cours";   
             $transaction->save();
+            // Envoyer notification à l'utilisateur
+            $user = User::find($id); // Récupérer l'utilisateur
+            $user->notify(new TransactionCree($transaction));
             //update somme expediteur & destinataire apres delais
+            $idTransaction=$transaction->id ;
+            //return $idTransaction;
+            // Mettre à jour les comptes        
             ProcessTransaction::dispatch(
+                $idTransaction,
                 $tauxDeChange, 
                 $porteeTransaction, 
                 $typeTransaction, 
@@ -178,6 +188,13 @@ class TransactionController extends Controller
                 $sommeTransaction, 
                 $id
             )->delay(now()->addSeconds($delais));
+            // DB::update("UPDATE transactions SET etatTransation =  ? WHERE id = ? ", [
+            //     "achevée",
+            //     $idTransaction
+            // ]);
+            // // Envoyer la notification
+            // $user = User::find($this->id);
+            // $user->notify(new TransactionComplete($transaction));
 
             return $transaction;
         }

@@ -11,11 +11,14 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use DB;
+use App\Models\User;
+use App\Notifications\TransactionComplete;
 
 class ProcessTransaction implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $idTransaction;
     protected $tauxDeChange;
     protected $porteeTransaction;
     protected $typeTransaction;
@@ -26,8 +29,9 @@ class ProcessTransaction implements ShouldQueue
     protected $sommeTransaction;
     protected $id;
 
-    public function __construct($tauxDeChange, $porteeTransaction, $typeTransaction, $fraisTransfert, $delais, $compteExpediteur, $compteDestinataire, $sommeTransaction, $id)
+    public function __construct($idTransaction, $tauxDeChange, $porteeTransaction, $typeTransaction, $fraisTransfert, $delais, $compteExpediteur, $compteDestinataire, $sommeTransaction, $id)
     {
+        $this->idTransaction = $idTransaction;
         $this->tauxDeChange = $tauxDeChange;
         $this->porteeTransaction = $porteeTransaction;
         $this->typeTransaction = $typeTransaction;
@@ -44,22 +48,35 @@ class ProcessTransaction implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
-    {
-        // Mettre à jour les comptes
-        DB::update("UPDATE comptes SET somme = somme + ? WHERE user_id = ? AND destinataire = ? AND numeroCompte = ?", [
-            $this->sommeTransaction,
-            $this->id,
-            true,
-            $this->compteDestinataire
-        ]);
+  public function handle()
+{
+    // Récupérer la transaction
+    $transaction = Transaction::find($this->idTransaction);
+    DB::update("UPDATE transactions SET etatTransation = ? WHERE id = ? ", [
+        "achevee",
+        $this->idTransaction
+    ]);
 
-        DB::update("UPDATE comptes SET somme = somme - ? - ? WHERE user_id = ? AND destinataire = ? AND numeroCompte = ?", [
-            $this->sommeTransaction,
-            $this->fraisTransfert,
-            $this->id,
-            false,
-            $this->compteExpediteur
-        ]);
-    }
+    // Mettre à jour les comptes
+    DB::update("UPDATE comptes SET somme = somme + ? WHERE user_id = ? AND destinataire = ? AND numeroCompte = ?", [
+        $this->sommeTransaction,
+        $this->id,
+        true,
+        $this->compteDestinataire
+    ]);
+
+    DB::update("UPDATE comptes SET somme = somme - ? - ? WHERE user_id = ? AND destinataire = ? AND numeroCompte = ?", [
+        $this->sommeTransaction,
+        $this->fraisTransfert,
+        $this->id,
+        false,
+        $this->compteExpediteur
+    ]);
+
+    // // Envoyer la notification
+    $user = User::find($this->id);
+    $user->notify(new TransactionComplete($transaction));
+}
+
+
 }
