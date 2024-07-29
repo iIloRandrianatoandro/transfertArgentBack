@@ -7,6 +7,6 @@
 </head>
 <body>
 <p>Voici votre code de vérification : </p>
-<p>{{ Str::random(4) }}</p>
+<p>{{  $verificationCode  }}</p>
 </body>
 </html>

@@ -56,7 +56,11 @@ class Authentification extends Controller
     public function ajouterInformation(Request $req, $id)
     {
         $user = User::find($id);
-            
+        
+         // Check if user exists (handle null case)
+         if (!$user) {
+            return response()->json(['error' => 'Utilisateur introuvable'], 404);
+        }
         // Mettez à jour les champs de l'utilisateur
         $user->update([
             'nom' => $req->nom,
@@ -69,12 +73,15 @@ class Authentification extends Controller
         return $user;
     }
     public function verifierMail(Request $req){ 
-       $destinataire = $req->destinataire;
-       Mail::to($destinataire)->send(new verifyMail());
+        // Generate verification code
+        $verificationCode = Str::random(4);
+       $email = $req->email;
+       Mail::to($email)->send(new verifyMail($verificationCode));
+       return $verificationCode;
     }
     public function seConnecter(Request $req){ //login
        if(Auth()->attempt($req->only('email', 'password'))){
-        return Auth::user()->id;
+        return ['userID'=>Auth::user()->id,'adresse'=>Auth::user()->adresse];
        }
        else{
         return 'erreur authentification';

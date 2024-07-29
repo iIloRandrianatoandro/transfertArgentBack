@@ -20,7 +20,11 @@ class CompteController extends Controller
         $compte->nomCompte=$req->nomCompte; //nom banque ou mobile money
         $compte->numeroCompte=$req->numeroCompte;
         $compte->somme=$req->somme;
-        $compte->destinataire=$req->destinataire;
+        $destinataire=false;
+        if($req->destinataire=="true"){
+            $destinataire=true;
+        }
+        $compte->destinataire=$destinataire;
         $compte->motDePasseCompte=Hash::make($req->motDePasseCompte);
         $compte->user_id=$userId; 
          
@@ -72,10 +76,23 @@ class CompteController extends Controller
         $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=false");
         return $comptes;
     }
-    public function listerCompteDestinataire($id)
+    public function listerCompteDestinataire($id, )
     { 
         $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=true ");
         return $comptes;
+    }
+    public function listerCompteExpediteurSelonTypeCompte(Request $req, $id)
+    { 
+        $typeCompte=$req->typeCompte;
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=false and typeCompte ='$typeCompte'");
+        return $comptes;
+    }
+    public function listerCompteDestinataireSelonTypeCompte(Request $req, $id)
+    { 
+        $typeCompte=$req->typeCompte;
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=true and typeCompte ='$typeCompte'");
+        //return $comptes;
+        return response()->json($comptes);
     }
 
     public function consulterCompte($id)

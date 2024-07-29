@@ -14,10 +14,11 @@ class verifyMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $verificationCode;
 
-    public function __construct() 
+    public function __construct($verificationCode) 
     {
-        //
+        $this->verificationCode = $verificationCode;
     }
 
     public function envelope() //can add from and reply address
@@ -27,15 +28,21 @@ class verifyMail extends Mailable
         );
     }
 
-    public function content()
-    {
-        return new Content(
-            view : 'verifyMail',
-        );
-    }
+    // public function content()
+    // {
+    //     return new Content(
+    //         view : 'verifyMail',
+    //     );
+    // }
     
     public function attachments() //pdf, image, ...
     {
         return [];
+    }
+    public function build()
+    {
+        return $this->view('verifyMail', [
+            'verificationCode' => $this->verificationCode,
+        ]);
     }
 }

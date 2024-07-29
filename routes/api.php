@@ -18,6 +18,8 @@ Route::controller(CompteController::class)->group(function(){
     Route::get('listerCompteDestinataire/{idUser}','listerCompteDestinataire'); 
     Route::get('consulterCompte/{id}','consulterCompte'); 
     Route::delete('supprimerCompte/{id}','supprimerCompte'); 
+    Route::post('listerCompteExpediteurSelonTypeCompte/{userId}','listerCompteExpediteurSelonTypeCompte'); 
+    Route::post('listerCompteDestinataireSelonTypeCompte/{userId}','listerCompteDestinataireSelonTypeCompte'); 
 });
 //notification
 Route::controller(NotificationController::class)->group(function(){
@@ -28,6 +30,7 @@ Route::controller(NotificationController::class)->group(function(){
 });
 //transaction
 Route::controller(TransactionController::class)->group(function(){
+    Route::post('voirCoutTransaction/{idUser}','voirCoutTransaction');
     Route::post('creerTransaction/{idUser}','creerTransaction'); 
     Route::get('listerTransaction/{idUser}','listerTransaction'); 
     Route::get('consulterTransaction/{idTransaction}','consulterTransaction'); 
