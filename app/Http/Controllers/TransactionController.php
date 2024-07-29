@@ -93,13 +93,13 @@ class TransactionController extends Controller
             else{
                 $sommeTransaction = $sommeTransaction/$tauxDeChange;
             }
-            if($typeTransaction == 'bankToMobileMoney') {
-                $fraisTransfert = 5000; // frais pour transfert international bank-to-mobile money
+            if($typeTransaction == 'Bank To Mobile Money') {
+                $fraisTransfert = 500; // frais pour transfert international bank-to-mobile money
                 $delais = 24 * 60; // délai en minutes (24 heures)
             }
         
-            elseif($typeTransaction == 'bankToBank') {
-                $fraisTransfert = 4500; // frais pour transfert international bank-to-bank
+            elseif($typeTransaction == 'Bank To Bank') {
+                $fraisTransfert = 450; // frais pour transfert international bank-to-bank
                 $delais = 3 * 24 * 60; // délai en minutes (3 jours ouvrables)
             }
         }

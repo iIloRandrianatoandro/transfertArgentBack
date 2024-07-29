@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('numeroCompte');
             $table->string('motDePasseCompte');
             $table->string('nomCompte');
+            $table->string('adresse');
             $table->boolean('destinataire');
             $table->decimal('somme');
             $table->foreignIdFor(user::class)->default(1);

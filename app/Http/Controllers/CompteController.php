@@ -20,6 +20,7 @@ class CompteController extends Controller
         $compte->nomCompte=$req->nomCompte; //nom banque ou mobile money
         $compte->numeroCompte=$req->numeroCompte;
         $compte->somme=$req->somme;
+        $compte->adresse=$req->adresse;
         $destinataire=false;
         if($req->destinataire=="true"){
             $destinataire=true;
@@ -81,16 +82,29 @@ class CompteController extends Controller
         $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=true ");
         return $comptes;
     }
-    public function listerCompteExpediteurSelonTypeCompte(Request $req, $id)
+    public function listerCompteExpediteurSelonTypeCompteMada(Request $req, $id)
     { 
         $typeCompte=$req->typeCompte;
-        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=false and typeCompte ='$typeCompte'");
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=false and typeCompte ='$typeCompte' and adresse='Mada'");
         return $comptes;
     }
-    public function listerCompteDestinataireSelonTypeCompte(Request $req, $id)
+    public function listerCompteDestinataireSelonTypeCompteMada(Request $req, $id)
     { 
         $typeCompte=$req->typeCompte;
-        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=true and typeCompte ='$typeCompte'");
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=true and typeCompte ='$typeCompte' and adresse='Mada'");
+        //return $comptes;
+        return response()->json($comptes);
+    }
+    public function listerCompteExpediteurSelonTypeCompteUS(Request $req, $id)
+    { 
+        $typeCompte=$req->typeCompte;
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=false and typeCompte ='$typeCompte' and adresse='US'");
+        return $comptes;
+    }
+    public function listerCompteDestinataireSelonTypeCompteUS(Request $req, $id)
+    { 
+        $typeCompte=$req->typeCompte;
+        $comptes=DB::select("select * from comptes where user_id='$id' and destinataire=true and typeCompte ='$typeCompte' and adresse='US'");
         //return $comptes;
         return response()->json($comptes);
     }

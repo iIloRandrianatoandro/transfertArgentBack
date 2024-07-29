@@ -18,8 +18,10 @@ Route::controller(CompteController::class)->group(function(){
     Route::get('listerCompteDestinataire/{idUser}','listerCompteDestinataire'); 
     Route::get('consulterCompte/{id}','consulterCompte'); 
     Route::delete('supprimerCompte/{id}','supprimerCompte'); 
-    Route::post('listerCompteExpediteurSelonTypeCompte/{userId}','listerCompteExpediteurSelonTypeCompte'); 
-    Route::post('listerCompteDestinataireSelonTypeCompte/{userId}','listerCompteDestinataireSelonTypeCompte'); 
+    Route::post('listerCompteExpediteurSelonTypeCompteMada/{userId}','listerCompteExpediteurSelonTypeCompteMada'); 
+    Route::post('listerCompteDestinataireSelonTypeCompteMada/{userId}','listerCompteDestinataireSelonTypeCompteMada'); 
+    Route::post('listerCompteExpediteurSelonTypeCompteUS/{userId}','listerCompteExpediteurSelonTypeCompteUS'); 
+    Route::post('listerCompteDestinataireSelonTypeCompteUS/{userId}','listerCompteDestinataireSelonTypeCompteUS'); 
 });
 //notification
 Route::controller(NotificationController::class)->group(function(){
