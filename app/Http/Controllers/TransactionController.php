@@ -167,9 +167,14 @@ class TransactionController extends Controller
        }
         
     }
-    public function listerTransaction($id)
+    public function listerTransactionEnCours($id)
     {
-        $transactions=DB::select("select * from transactions where user_id='$id'");
+        $transactions=DB::select("select * from transactions where user_id='$id' and etatTransation='en cours'");
+        return $transactions;
+    }
+    public function listerTransactionAchevee($id)
+    {
+        $transactions=DB::select("select * from transactions where user_id='$id' and etatTransation='achevee'");
         return $transactions;
     }
     public function consulterTransaction($id)
